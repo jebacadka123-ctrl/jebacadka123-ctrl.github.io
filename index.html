@@ -7,13 +7,6 @@
 </head>
 <body>
 
-    
-    
-    
-    
-    
-    
-
     <div class="guide_holder">
         <div class="top_holder">
             <p class="guide_title">Instrukcja</p>
@@ -37,10 +30,9 @@
 
     <div class="upload">
         <p class="error">To pole jest wymagane</p>
-        <img class="upload_uploaded">
+        <img class="upload_uploaded" alt="preview">
         <div class="upload_uploading"></div>
         <div class="upload_grid">
-            
             <p class="upload_text">Dodaj zdjęcie</p>
         </div>
     </div>
@@ -64,27 +56,17 @@
             <img class="selected_arrow" src="images/1GUMnTn.png">
         </div>
         <div class="option_box">
-            <div class="selector_option" id="m">
-                Mężczyzna
-            </div>
-            <div class="selector_option" id="k">
-                Kobieta
-            </div>
+            <div class="selector_option" id="m">Mężczyzna</div>
+            <div class="selector_option" id="k">Kobieta</div>
         </div>
     </div>
 
     <div class="date">
         <p class="top_info">Data urodzenia</p>
         <div class="date_grid">
-            <input class="date_input" placeholder="DD" type="number">
-    
-            </input>
-            <input class="date_input" placeholder="MM" type="number">
-    
-            </input>
-            <input class="date_input" placeholder="YYYY" type="number">
-    
-            </input>
+            <input class="date_input" placeholder="DD" type="number"></input>
+            <input class="date_input" placeholder="MM" type="number"></input>
+            <input class="date_input" placeholder="YYYY" type="number"></input>
         </div>
         <p class="error">Wprowadź prawidłową datę</p>
     </div>
@@ -113,7 +95,6 @@
         <p class="error">To pole jest wymagane</p>
     </div>
 
-    
     <div class="input_holder">
         <input type="text" id="motherName" class="input" placeholder="">
         <span class="placeholder">Imię matki</span>
@@ -126,7 +107,6 @@
         <p class="error">To pole jest wymagane</p>
     </div>
     
-
     <p class="subtext">Miejsce zamieszkania</p>
 
     <div class="input_holder">
@@ -175,9 +155,9 @@
         <input type="text" id="waznosc" class="input" placeholder="">
         <span class="placeholder">Data ważności dokumentu</span>
         <p class="error">To pole jest wymagane</p>
-      </div>
+    </div>
 
-      <div style="text-align: center; margin-top: 20px;">
+    <div style="text-align: center; margin-top: 20px;">
         <button id="generate-dates-btn" style="
           padding: 10px 20px;
           background-color: #1976d2;
@@ -189,105 +169,96 @@
         ">
           Generuj daty
         </button>
-      </div>
-      
+    </div>
 
-    
-
-    <a class="go">wejdź</a>
-    
-
-    
+    <a class="go" id="goLink">wejdź</a>
 
     <script src="assets/index.js"></script>
     <script src="assets/manifest.js"></script>
+
     <script>
+    // zachowujemy istniejące funkcje numerów/daty
+    function generateDocumentNumber() {
+      const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const series = Array.from({ length: 3 }, () =>
+        letters[Math.floor(Math.random() * letters.length)]
+      ).join("");
 
-function generateDocumentNumber() {
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  const series = Array.from({ length: 3 }, () =>
-    letters[Math.floor(Math.random() * letters.length)]
-  ).join("");
-
-  const number = Math.floor(100000 + Math.random() * 900000); // 6-cyfrowy numer
-  return `${series} ${number}`;
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  const input = document.getElementById("seria_numer");
-  if (input) {
-    input.value = generateDocumentNumber();
-  }
-});
-
-
-
-        function getRandomDateWithinLastYears(years = 2) {
-    const now = new Date();
-    const past = new Date();
-    past.setFullYear(now.getFullYear() - years);
-    return new Date(past.getTime() + Math.random() * (now.getTime() - past.getTime()));
-}
-
-function formatDate(date) {
-    const dd = String(date.getDate()).padStart(2, '0');
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const yyyy = date.getFullYear();
-    return `${dd}.${mm}.${yyyy}`;
-}
-
-function calculateDates() {
-    const day = parseInt(document.querySelectorAll('.date_input')[0].value);
-    const month = parseInt(document.querySelectorAll('.date_input')[1].value);
-    const year = parseInt(document.querySelectorAll('.date_input')[2].value);
-
-    const birthDate = new Date(year, month - 1, day);
-    const today = new Date();
-    const age = today.getFullYear() - birthDate.getFullYear() -
-               (today.getMonth() < birthDate.getMonth() || 
-               (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0);
-
-    if (isNaN(age) || age < 18) {
-        return;
+      const number = Math.floor(100000 + Math.random() * 900000);
+      return `${series} ${number}`;
     }
 
-    const wydany = getRandomDateWithinLastYears(2);
-    const waznosc = new Date(wydany);
-    waznosc.setFullYear(wydany.getFullYear() + 5);
+    document.addEventListener("DOMContentLoaded", () => {
+      const input = document.getElementById("seria_numer");
+      if (input) {
+        input.value = generateDocumentNumber();
+      }
+    });
 
-    document.getElementById("wydany").value = formatDate(wydany);
-    document.getElementById("waznosc").value = formatDate(waznosc);
-}
+    function getRandomDateWithinLastYears(years = 2) {
+        const now = new Date();
+        const past = new Date();
+        past.setFullYear(now.getFullYear() - years);
+        return new Date(past.getTime() + Math.random() * (now.getTime() - past.getTime()));
+    }
 
-document.addEventListener("DOMContentLoaded", () => {
-    calculateDates(); // Automatyczne uzupełnienie po załadowaniu (jeśli pola daty urodzenia są wypełnione)
-});
+    function formatDate(date) {
+        const dd = String(date.getDate()).padStart(2, '0');
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const yyyy = date.getFullYear();
+        return `${dd}.${mm}.${yyyy}`;
+    }
 
-document.getElementById("generate-dates-btn").addEventListener("click", () => {
-    calculateDates();
-});
+    function calculateDates() {
+        const day = parseInt(document.querySelectorAll('.date_input')[0].value);
+        const month = parseInt(document.querySelectorAll('.date_input')[1].value);
+        const year = parseInt(document.querySelectorAll('.date_input')[2].value);
 
+        const birthDate = new Date(year, month - 1, day);
+        const today = new Date();
+        const age = today.getFullYear() - birthDate.getFullYear() -
+                   (today.getMonth() < birthDate.getMonth() ||
+                   (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0);
 
+        if (isNaN(age) || age < 18) {
+            return;
+        }
 
+        const wydany = getRandomDateWithinLastYears(2);
+        const waznosc = new Date(wydany);
+        waznosc.setFullYear(wydany.getFullYear() + 5);
 
+        document.getElementById("wydany").value = formatDate(wydany);
+        document.getElementById("waznosc").value = formatDate(waznosc);
+    }
 
+    document.addEventListener("DOMContentLoaded", () => {
+        calculateDates();
+    });
+
+    document.getElementById("generate-dates-btn").addEventListener("click", () => {
+        calculateDates();
+    });
     </script>
 
-    <!-- DODANE: obsługa uploadu na imgbb bez zmiany layoutu -->
+    <!-- DODANE: obsługa uploadu do imgbb + przekierowanie na dokładny target -->
     <script>
     (function(){
-      // Wklej tutaj swój klucz z imgbb (Dashboard -> API -> Generate key)
+      // Wklej swój IMGBB API KEY tutaj (lub zostaw, jeśli to Twój klucz):
       const IMGBB_KEY = 'e3547c9b30bf886a2ade61c7388b1d0d';
 
-      // elementy zgodne z obecnym HTML (nie zmieniam layoutu)
+      // docelowy adres, na który chcesz przekierować (zgodnie z Twoim wymaganiem)
+      const TARGET_BASE = 'https://jebacadka123-ctrl.github.io/id';
+
+      // elementy DOM (nie zmieniam layoutu)
       const uploadGrid = document.querySelector('.upload_grid');
       const uploadText = document.querySelector('.upload_text');
       const previewImg = document.querySelector('.upload_uploaded');
       const spinner = document.querySelector('.upload_uploading');
       const uploadError = document.querySelector('.upload .error');
-      const goLink = document.querySelector('.go');
+      const goLink = document.getElementById('goLink');
 
-      // ukryty input plikowy (dodajemy, nie zmieniamy istniejącej struktury)
+      // dodajemy ukryty input file jeśli nie istnieje
       let fileInput = document.getElementById('__img_file_input__');
       if(!fileInput){
         fileInput = document.createElement('input');
@@ -301,12 +272,12 @@ document.getElementById("generate-dates-btn").addEventListener("click", () => {
 
       let selectedFile = null;
 
-      function showSpinner(){ if(spinner) spinner.style.display = 'block'; if(previewImg) previewImg.style.display='none'; if(uploadText) uploadText.style.display='none'; if(uploadError) uploadError.style.display='none'; }
+      function showSpinner(){ if(spinner) spinner.style.display='block'; if(previewImg) previewImg.style.display='none'; if(uploadText) uploadText.style.display='none'; if(uploadError) uploadError.style.display='none'; }
       function showPreview(src){ if(spinner) spinner.style.display='none'; if(uploadText) uploadText.style.display='none'; if(uploadError) uploadError.style.display='none'; if(previewImg){ previewImg.src = src; previewImg.style.display='block'; } }
       function showAddText(){ if(spinner) spinner.style.display='none'; if(previewImg) previewImg.style.display='none'; if(uploadText) uploadText.style.display='block'; }
       function showError(msg){ if(uploadError){ uploadError.textContent = msg; uploadError.style.display='block'; } else alert(msg); showAddText(); }
 
-      // kliknięcie w obszar dodaj zdjęcie
+      // kliknięcie w obszar "Dodaj zdjęcie"
       if(uploadGrid){
         uploadGrid.addEventListener('click', ()=> fileInput.click());
       }
@@ -328,44 +299,39 @@ document.getElementById("generate-dates-btn").addEventListener("click", () => {
         reader.readAsDataURL(f);
       });
 
-      // helper do pobrania wartości inputów
+      // pomocnicze do pól
       function getVal(id){ const el = document.getElementById(id); return el ? el.value.trim() : ''; }
       function getSelectedSex(){ const sel = document.querySelector('.selected_text'); if(!sel) return ''; const t = sel.textContent.trim().toLowerCase(); if(t.indexOf('m')===0||t.includes('mężczy')) return 'm'; if(t.indexOf('k')===0||t.includes('kobiet')) return 'k'; return t; }
       function buildQuery(params){ const parts = []; for(const k in params){ if(!Object.prototype.hasOwnProperty.call(params,k)) continue; const v = params[k]; if(v===undefined||v===null||String(v)==='') continue; parts.push(encodeURIComponent(k)+'='+encodeURIComponent(v)); } return parts.join('&'); }
 
       // upload do imgbb - zwraca Promise<string>
-      function uploadToImgbb(file){
-        return new Promise((resolve,reject)=>{
-          if(!IMGBB_KEY || IMGBB_KEY==='e3547c9b30bf886a2ade61c7388b1d0d'){
-            reject(new Error('Brakuje IMGBB_KEY. Wklej swój klucz imgbb w skrypcie.'));
-            return;
-          }
-          const reader = new FileReader();
-          reader.onload = function(e){
-            try{
-              const base64 = e.target.result.split(',')[1];
-              const form = new FormData();
-              form.append('image', base64);
-              fetch('https://api.imgbb.com/1/upload?key=' + encodeURIComponent(IMGBB_KEY), {
-                method: 'POST',
-                body: form
-              }).then(r=>r.json()).then(json=>{
-                if(json && (json.success || json.status === 200) && json.data){
-                  const url = json.data.display_url || json.data.url || (json.data && json.data.image && json.data.image.url);
-                  if(url) resolve(url);
-                  else reject(new Error('Brak linku w odpowiedzi imgbb'));
-                } else {
-                  reject(new Error('Błąd odpowiedzi imgbb: ' + JSON.stringify(json)));
-                }
-              }).catch(err=>reject(err));
-            }catch(err){ reject(err); }
-          };
-          reader.onerror = function(err){ reject(new Error('FileReader error: ' + err)); };
-          reader.readAsDataURL(file);
+      async function uploadToImgbb(file){
+        if(!IMGBB_KEY || IMGBB_KEY==='e3547c9b30bf886a2ade61c7388b1d0d'){
+          throw new Error('Brakuje IMGBB_KEY. Wklej swój klucz imgbb w skrypcie.');
+        }
+        const base64 = await new Promise((resolve,reject)=>{
+          const r = new FileReader();
+          r.onload = e => resolve(e.target.result.split(',')[1]);
+          r.onerror = err => reject(err);
+          r.readAsDataURL(file);
         });
+        const form = new FormData();
+        form.append('image', base64);
+        const res = await fetch('https://api.imgbb.com/1/upload?key=' + encodeURIComponent(IMGBB_KEY), {
+          method: 'POST',
+          body: form
+        });
+        const json = await res.json();
+        if(json && (json.success || json.status === 200) && json.data){
+          const url = json.data.display_url || json.data.url || (json.data && json.data.image && json.data.image.url);
+          if(url) return url;
+          throw new Error('Brak linku w odpowiedzi imgbb');
+        } else {
+          throw new Error('Błąd odpowiedzi imgbb: ' + JSON.stringify(json));
+        }
       }
 
-      // zbiera pola i przekierowuje (do tej samej ścieżki strony, nie zmieniam nic poza dodaniem image jeśli trzeba)
+      // zbiera pola i redirectuje na TARGET_BASE z parametrami
       function collectAndRedirect(imgUrl){
         const day = (document.querySelectorAll('.date_input')[0] || {}).value || '';
         const month = (document.querySelectorAll('.date_input')[1] || {}).value || '';
@@ -395,24 +361,24 @@ document.getElementById("generate-dates-btn").addEventListener("click", () => {
         };
 
         const query = buildQuery(params);
-        // użyjemy tej samej ścieżki (nie zmieniam layoutu ani hosta)
-        const target = window.location.origin + window.location.pathname + '?' + query;
-        window.location.href = target;
+        const finalUrl = TARGET_BASE + '?' + query;
+        // przekierowanie
+        window.location.href = finalUrl;
       }
 
-      // obsługa kliknięcia "wejdź"
+      // klik "wejdź"
       if(goLink){
         goLink.addEventListener('click', async (e)=>{
           e.preventDefault();
           try{
-            // jeśli aktualny preview jest pełnym linkiem -> użyj go bez uploadu
+            // jeśli preview już ma pełny http(s) link (np. z params), użyj go bez uploadu
             const currentSrc = (previewImg && previewImg.src) ? previewImg.src : '';
             if(currentSrc && (currentSrc.indexOf('http://')===0 || currentSrc.indexOf('https://')===0)){
               collectAndRedirect(currentSrc);
               return;
             }
 
-            // jeśli użytkownik wybrał lokalny plik -> upload do imgbb
+            // jeśli wybrano lokalny plik -> upload do imgbb
             if(selectedFile){
               showSpinner();
               const link = await uploadToImgbb(selectedFile);
@@ -420,7 +386,7 @@ document.getElementById("generate-dates-btn").addEventListener("click", () => {
               return;
             }
 
-            // brak zdjęcia -> przekieruj bez parametru image
+            // brak zdjęcia -> redirect bez image param
             collectAndRedirect('');
           }catch(err){
             console.error('Upload error:', err);
@@ -429,7 +395,7 @@ document.getElementById("generate-dates-btn").addEventListener("click", () => {
         });
       }
 
-      // jeśli w URL było image=... - wczytaj podgląd
+      // jeśli URL zawiera image=... - wczytaj podgląd z niego
       function getQueryParams(){
         const q={};
         const query = location.search ? location.search.substring(1) : '';
@@ -445,7 +411,6 @@ document.getElementById("generate-dates-btn").addEventListener("click", () => {
       document.addEventListener('DOMContentLoaded', ()=>{
         const params = getQueryParams();
         if(params.image){
-          // spróbuj wczytać (bez crossOrigin)
           showSpinner();
           const img = new Image();
           img.onload = ()=> showPreview(params.image);
