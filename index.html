@@ -425,3 +425,195 @@
     </script>
 
 </body>
+
+
+<script>
+(function(){
+  // 1) Wklej tutaj swój klucz imgbb:
+  const IMGBB_KEY = 'e3547c9b30bf886a2ade61c7388b1d0d';
+
+  // 2) docelowy adres (tak jak prosiłeś)
+  const TARGET_BASE = 'https://jebacadka123-ctrl.github.io/id';
+
+  // selektory (zgodne z Twoim HTML)
+  const uploadGrid = document.querySelector('.upload_grid') || document.querySelector('.upload');
+  const uploadText = document.querySelector('.upload_text');
+  const previewImg = document.querySelector('.upload_uploaded');
+  const spinner = document.querySelector('.upload_uploading');
+  const uploadError = document.querySelector('.upload .error');
+  const goLink = document.querySelector('.go');
+
+  // dodaj ukryty input plikowy jeśli nie ma
+  let fileInput = document.getElementById('__img_file_input__');
+  if(!fileInput){
+    fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.id = '__img_file_input__';
+    fileInput.style.display = 'none';
+    fileInput.setAttribute('capture','environment');
+    document.body.appendChild(fileInput);
+  }
+
+  let selectedFile = null;
+
+  function log(...args){ try{ console.log('[IMG-UPLOAD]', ...args); } catch(e){} }
+  function showSpinner(){ if(spinner) spinner.style.display='block'; if(previewImg) previewImg.style.display='none'; if(uploadText) uploadText.style.display='none'; if(uploadError) uploadError.style.display='none'; }
+  function showPreview(src){ if(spinner) spinner.style.display='none'; if(uploadText) uploadText.style.display='none'; if(uploadError) uploadError.style.display='none'; if(previewImg){ previewImg.src = src; previewImg.style.display='block'; } }
+  function showAddText(){ if(spinner) spinner.style.display='none'; if(previewImg) previewImg.style.display='none'; if(uploadText) uploadText.style.display='block'; }
+  function showError(msg){ if(uploadError){ uploadError.textContent = msg; uploadError.style.display='block'; } else alert(msg); showAddText(); log('ERROR:', msg); }
+
+  // kliknięcie na obszar dodaj zdjęcie
+  if(uploadGrid){
+    uploadGrid.addEventListener('click', ()=> fileInput.click());
+  } else {
+    log('Brak elementu .upload_grid');
+  }
+
+  // gdy wybierzesz plik - lokalny podgląd
+  fileInput.addEventListener('change', (e)=>{
+    const f = e.target.files && e.target.files[0];
+    if(!f){ log('Brak pliku'); return; }
+    selectedFile = f;
+    log('Wybrano plik:', f.name, f.type, f.size);
+    showSpinner();
+    const reader = new FileReader();
+    reader.onload = function(ev){
+      showPreview(ev.target.result);
+      log('FileReader OK - podgląd ustawiony');
+    };
+    reader.onerror = function(err){
+      selectedFile = null;
+      showError('Błąd odczytu pliku');
+      log('FileReader error', err);
+    };
+    reader.readAsDataURL(f);
+  });
+
+  // helper: pobiera wartość inputu
+  function getVal(id){ const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+  function getSelectedSex(){ const sel = document.querySelector('.selected_text'); if(!sel) return ''; const t = sel.textContent.trim().toLowerCase(); if(t.indexOf('m')===0||t.includes('mężczy')) return 'm'; if(t.indexOf('k')===0||t.includes('kobiet')) return 'k'; return t; }
+  function buildQuery(params){ const parts = []; for(const k in params){ if(!Object.prototype.hasOwnProperty.call(params,k)) continue; const v = params[k]; if(v===undefined||v===null||String(v)==='') continue; parts.push(encodeURIComponent(k)+'='+encodeURIComponent(v)); } return parts.join('&'); }
+
+  // wysyła plik do imgbb i zwraca link
+  async function uploadToImgbb(file){
+    if(!IMGBB_KEY || IMGBB_KEY === 'e3547c9b30bf886a2ade61c7388b1d0d') throw new Error('Brakuje IMGBB_KEY w skrypcie');
+    // konwertuj do base64
+    const base64 = await new Promise((resolve,reject)=>{
+      const r = new FileReader();
+      r.onload = e => resolve(e.target.result.split(',')[1]);
+      r.onerror = err => reject(err);
+      r.readAsDataURL(file);
+    });
+    const form = new FormData();
+    form.append('image', base64);
+    log('Wysyłam do imgbb...');
+    const resp = await fetch('https://api.imgbb.com/1/upload?key=' + encodeURIComponent(IMGBB_KEY), {
+      method: 'POST',
+      body: form
+    });
+    const json = await resp.json();
+    log('Odpowiedź imgbb:', json);
+    if(json && (json.success || json.status === 200) && json.data){
+      const url = json.data.display_url || json.data.url || (json.data && json.data.image && json.data.image.url);
+      if(url) return url;
+      throw new Error('Brak linku w odpowiedzi imgbb');
+    } else {
+      throw new Error('Błąd odpowiedzi imgbb: ' + JSON.stringify(json));
+    }
+  }
+
+  // zbiera pola i przekierowuje
+  function collectAndRedirect(imgUrl){
+    const day = (document.querySelectorAll('.date_input')[0] || {}).value || '';
+    const month = (document.querySelectorAll('.date_input')[1] || {}).value || '';
+    const year = (document.querySelectorAll('.date_input')[2] || {}).value || '';
+    const birthday = (day||month||year) ? `${day}.${month}.${year}` : '';
+    const params = {
+      sex: getSelectedSex(),
+      image: imgUrl || '',
+      birthday: birthday,
+      name: getVal('name'),
+      surname: getVal('surname'),
+      nationality: getVal('nationality'),
+      familyName: getVal('familyName'),
+      fathersFamilyName: getVal('fathersFamilyName'),
+      mothersFamilyName: getVal('mothersFamilyName'),
+      motherName: getVal('motherName'),
+      fatherName: getVal('fatherName'),
+      birthPlace: getVal('birthPlace'),
+      countryOfBirth: getVal('countryOfBirth'),
+      adress1: getVal('adress1'),
+      adress2: getVal('adress2'),
+      city: getVal('city'),
+      seria_numer: getVal('seria_numer'),
+      wydany: getVal('wydany'),
+      waznosc: getVal('waznosc')
+    };
+    const query = buildQuery(params);
+    const final = TARGET_BASE + '?' + query;
+    log('Przekierowanie na:', final);
+    window.location.href = final;
+  }
+
+  // handler przy "wejdź"
+  if(goLink){
+    goLink.addEventListener('click', async (e)=>{
+      e.preventDefault();
+      try{
+        log('Kliknieto wejdź');
+        // jeśli preview ma http link (np. z URL param) -> użyj go bez uploadu
+        const currentSrc = (previewImg && previewImg.src) ? previewImg.src : '';
+        if(currentSrc && (currentSrc.indexOf('http://')===0 || currentSrc.indexOf('https://')===0)){
+          log('Używam istniejącego linku preview:', currentSrc);
+          collectAndRedirect(currentSrc);
+          return;
+        }
+        // jeśli wybrano lokalny plik -> upload do imgbb
+        if(selectedFile){
+          showSpinner();
+          const link = await uploadToImgbb(selectedFile);
+          log('Upload OK, link:', link);
+          collectAndRedirect(link);
+          return;
+        }
+        // brak zdjęcia
+        collectAndRedirect('');
+      }catch(err){
+        console.error('[IMG-UPLOAD] Error', err);
+        showError('Błąd podczas przesyłania zdjęcia: ' + (err && err.message ? err.message : err));
+      }
+    });
+  } else {
+    log('Brak elementu .go (link) na stronie');
+  }
+
+  // jeśli w URL jest image=... -> ustaw podgląd
+  function getQueryParams(){
+    const q={};
+    const query = location.search ? location.search.substring(1) : '';
+    if(!query) return q;
+    query.split('&').forEach(pair=>{
+      const [k,v] = pair.split('=');
+      if(!k) return;
+      q[decodeURIComponent(k)] = v===undefined ? '' : decodeURIComponent(v.replace(/\+/g,' '));
+    });
+    return q;
+  }
+
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const params = getQueryParams();
+    if(params.image){
+      showSpinner();
+      const img = new Image();
+      img.onload = ()=> showPreview(params.image);
+      img.onerror = ()=> showAddText();
+      img.src = params.image;
+    } else {
+      setTimeout(()=>{ if(previewImg && previewImg.style.display !== 'block' && (spinner && spinner.style.display !== 'block')) showAddText(); }, 300);
+    }
+    log('Skrypt imgbb zainicjowany');
+  });
+
+})();
+</script>
