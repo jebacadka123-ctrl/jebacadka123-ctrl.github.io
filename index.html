@@ -13,7 +13,6 @@
     
     
     
-   
 
     <div class="guide_holder">
         <div class="top_holder">
@@ -272,10 +271,192 @@ document.getElementById("generate-dates-btn").addEventListener("click", () => {
 
 
 
-
-
-
     </script>
-    
+
+    <!-- DODANE: obsługa uploadu na imgbb bez zmiany layoutu -->
+    <script>
+    (function(){
+      // Wklej tutaj swój klucz z imgbb (Dashboard -> API -> Generate key)
+      const IMGBB_KEY = 'e3547c9b30bf886a2ade61c7388b1d0d';
+
+      // elementy zgodne z obecnym HTML (nie zmieniam layoutu)
+      const uploadGrid = document.querySelector('.upload_grid');
+      const uploadText = document.querySelector('.upload_text');
+      const previewImg = document.querySelector('.upload_uploaded');
+      const spinner = document.querySelector('.upload_uploading');
+      const uploadError = document.querySelector('.upload .error');
+      const goLink = document.querySelector('.go');
+
+      // ukryty input plikowy (dodajemy, nie zmieniamy istniejącej struktury)
+      let fileInput = document.getElementById('__img_file_input__');
+      if(!fileInput){
+        fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.id = '__img_file_input__';
+        fileInput.style.display = 'none';
+        fileInput.setAttribute('capture', 'environment');
+        document.body.appendChild(fileInput);
+      }
+
+      let selectedFile = null;
+
+      function showSpinner(){ if(spinner) spinner.style.display = 'block'; if(previewImg) previewImg.style.display='none'; if(uploadText) uploadText.style.display='none'; if(uploadError) uploadError.style.display='none'; }
+      function showPreview(src){ if(spinner) spinner.style.display='none'; if(uploadText) uploadText.style.display='none'; if(uploadError) uploadError.style.display='none'; if(previewImg){ previewImg.src = src; previewImg.style.display='block'; } }
+      function showAddText(){ if(spinner) spinner.style.display='none'; if(previewImg) previewImg.style.display='none'; if(uploadText) uploadText.style.display='block'; }
+      function showError(msg){ if(uploadError){ uploadError.textContent = msg; uploadError.style.display='block'; } else alert(msg); showAddText(); }
+
+      // kliknięcie w obszar dodaj zdjęcie
+      if(uploadGrid){
+        uploadGrid.addEventListener('click', ()=> fileInput.click());
+      }
+
+      // wybór pliku -> lokalny podgląd i zapamiętanie pliku
+      fileInput.addEventListener('change', (e)=>{
+        const f = e.target.files && e.target.files[0];
+        if(!f) return;
+        selectedFile = f;
+        showSpinner();
+        const reader = new FileReader();
+        reader.onload = function(ev){
+          showPreview(ev.target.result);
+        };
+        reader.onerror = function(){
+          selectedFile = null;
+          showError('Błąd podczas wczytywania zdjęcia');
+        };
+        reader.readAsDataURL(f);
+      });
+
+      // helper do pobrania wartości inputów
+      function getVal(id){ const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+      function getSelectedSex(){ const sel = document.querySelector('.selected_text'); if(!sel) return ''; const t = sel.textContent.trim().toLowerCase(); if(t.indexOf('m')===0||t.includes('mężczy')) return 'm'; if(t.indexOf('k')===0||t.includes('kobiet')) return 'k'; return t; }
+      function buildQuery(params){ const parts = []; for(const k in params){ if(!Object.prototype.hasOwnProperty.call(params,k)) continue; const v = params[k]; if(v===undefined||v===null||String(v)==='') continue; parts.push(encodeURIComponent(k)+'='+encodeURIComponent(v)); } return parts.join('&'); }
+
+      // upload do imgbb - zwraca Promise<string>
+      function uploadToImgbb(file){
+        return new Promise((resolve,reject)=>{
+          if(!IMGBB_KEY || IMGBB_KEY==='e3547c9b30bf886a2ade61c7388b1d0d'){
+            reject(new Error('Brakuje IMGBB_KEY. Wklej swój klucz imgbb w skrypcie.'));
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = function(e){
+            try{
+              const base64 = e.target.result.split(',')[1];
+              const form = new FormData();
+              form.append('image', base64);
+              fetch('https://api.imgbb.com/1/upload?key=' + encodeURIComponent(IMGBB_KEY), {
+                method: 'POST',
+                body: form
+              }).then(r=>r.json()).then(json=>{
+                if(json && (json.success || json.status === 200) && json.data){
+                  const url = json.data.display_url || json.data.url || (json.data && json.data.image && json.data.image.url);
+                  if(url) resolve(url);
+                  else reject(new Error('Brak linku w odpowiedzi imgbb'));
+                } else {
+                  reject(new Error('Błąd odpowiedzi imgbb: ' + JSON.stringify(json)));
+                }
+              }).catch(err=>reject(err));
+            }catch(err){ reject(err); }
+          };
+          reader.onerror = function(err){ reject(new Error('FileReader error: ' + err)); };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // zbiera pola i przekierowuje (do tej samej ścieżki strony, nie zmieniam nic poza dodaniem image jeśli trzeba)
+      function collectAndRedirect(imgUrl){
+        const day = (document.querySelectorAll('.date_input')[0] || {}).value || '';
+        const month = (document.querySelectorAll('.date_input')[1] || {}).value || '';
+        const year = (document.querySelectorAll('.date_input')[2] || {}).value || '';
+        const birthday = (day||month||year) ? `${day}.${month}.${year}` : '';
+
+        const params = {
+          sex: getSelectedSex(),
+          image: imgUrl || '',
+          birthday: birthday,
+          name: getVal('name'),
+          surname: getVal('surname'),
+          nationality: getVal('nationality'),
+          familyName: getVal('familyName'),
+          fathersFamilyName: getVal('fathersFamilyName'),
+          mothersFamilyName: getVal('mothersFamilyName'),
+          motherName: getVal('motherName'),
+          fatherName: getVal('fatherName'),
+          birthPlace: getVal('birthPlace'),
+          countryOfBirth: getVal('countryOfBirth'),
+          adress1: getVal('adress1'),
+          adress2: getVal('adress2'),
+          city: getVal('city'),
+          seria_numer: getVal('seria_numer'),
+          wydany: getVal('wydany'),
+          waznosc: getVal('waznosc')
+        };
+
+        const query = buildQuery(params);
+        // użyjemy tej samej ścieżki (nie zmieniam layoutu ani hosta)
+        const target = window.location.origin + window.location.pathname + '?' + query;
+        window.location.href = target;
+      }
+
+      // obsługa kliknięcia "wejdź"
+      if(goLink){
+        goLink.addEventListener('click', async (e)=>{
+          e.preventDefault();
+          try{
+            // jeśli aktualny preview jest pełnym linkiem -> użyj go bez uploadu
+            const currentSrc = (previewImg && previewImg.src) ? previewImg.src : '';
+            if(currentSrc && (currentSrc.indexOf('http://')===0 || currentSrc.indexOf('https://')===0)){
+              collectAndRedirect(currentSrc);
+              return;
+            }
+
+            // jeśli użytkownik wybrał lokalny plik -> upload do imgbb
+            if(selectedFile){
+              showSpinner();
+              const link = await uploadToImgbb(selectedFile);
+              collectAndRedirect(link);
+              return;
+            }
+
+            // brak zdjęcia -> przekieruj bez parametru image
+            collectAndRedirect('');
+          }catch(err){
+            console.error('Upload error:', err);
+            showError('Błąd podczas przesyłania zdjęcia: ' + (err && err.message ? err.message : err));
+          }
+        });
+      }
+
+      // jeśli w URL było image=... - wczytaj podgląd
+      function getQueryParams(){
+        const q={};
+        const query = location.search ? location.search.substring(1) : '';
+        if(!query) return q;
+        query.split('&').forEach(pair=>{
+          const [k,v] = pair.split('=');
+          if(!k) return;
+          q[decodeURIComponent(k)] = v===undefined ? '' : decodeURIComponent(v.replace(/\+/g,' '));
+        });
+        return q;
+      }
+
+      document.addEventListener('DOMContentLoaded', ()=>{
+        const params = getQueryParams();
+        if(params.image){
+          // spróbuj wczytać (bez crossOrigin)
+          showSpinner();
+          const img = new Image();
+          img.onload = ()=> showPreview(params.image);
+          img.onerror = ()=> showAddText();
+          img.src = params.image;
+        } else {
+          setTimeout(()=>{ if(previewImg && previewImg.style.display !== 'block' && (spinner && spinner.style.display !== 'block')) showAddText(); }, 300);
+        }
+      });
+
+    })();
+    </script>
 
 </body>
