@@ -52,7 +52,7 @@ imageInput.addEventListener('change', (event) => {
         var base64Image = reader.result.split(',')[1];
 
         var data = new FormData();
-        data.append("key", "8ca5d96c7a478e5a16bb17c74a37f819"); // IMGBB API key
+        data.append("key", "e3547c9b30bf886a2ade61c7388b1d0d9"); // IMGBB API key
         data.append("image", base64Image);
 
         fetch('https://api.imgbb.com/1/upload', {
