@@ -1,16 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
 :root{
-    --home: url('https://fistaszjo.github.io/FistaszjoObywatel/images/ab001_home.svg');
-    --home-open: url('https://fistaszjo.github.io/FistaszjoObywatel/images/b001_home.svg');
-    --documents: url('https://fistaszjo.github.io/FistaszjoObywatel/images/ad005_framed_person.svg');
-    --documents-open: url('https://fistaszjo.github.io/FistaszjoObywatel/images/b002_framed_person.svg');
-    --services: url('https://fistaszjo.github.io/FistaszjoObywatel/images/ac001_services.svg');
-    --services-open: url('https://fistaszjo.github.io/FistaszjoObywatel/images/b004_services.svg');
-    --qr: url('https://fistaszjo.github.io/FistaszjoObywatel/images/ai001_scanner_qr.svg');
-    --qr-open: url('https://fistaszjo.github.io/FistaszjoObywatel/images/b003_scanner_qr.svg');
-    --more: url('https://fistaszjo.github.io/FistaszjoObywatel/images/ab010_more.svg');
-    --more-open: url('https://fistaszjo.github.io/FistaszjoObywatel/images/b005_more.svg');
+    --home: url('../images/2eKl73o.png');
+    --home-open: url('../images/0OfDslu.png');
+    --documents: url('../images/sltb5a0.png');
+    --documents-open: url('../images/8Svo1kX.png');
+    --services: url('../images/3Ft4ULN.png');
+    --services-open: url('../images/uTM7cGR.png');
+    --qr: url('../images/P6F91tI.png');
+    --qr-open: url('../images/rPgX94T.png');
+    --more: url('../images/ECjKGrW.png');
+    --more-open: url('../images/wC2vTmn.png');
     --text: #024b97;
     --shadow: 0px 0px 10px rgb(224, 224, 224);
 }

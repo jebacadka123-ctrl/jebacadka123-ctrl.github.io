@@ -7,7 +7,17 @@ body .bottom_bar{
     width: 17px;
     margin-top: auto;
     margin-bottom: auto;
-    rotate: 180deg;
+}
+
+.eagle_text{
+    font-size: 14px;
+    font-weight: 200;
+    margin-top: 0px;
+    margin-bottom: auto;
+    height: max-content;
+    line-height: 17px;
+    margin-left: 1px;
+    color: gray;
 }
 
 .action_grid{
@@ -447,11 +457,11 @@ body .bottom_bar{
 }
 
 .card_1{
-    background-image: url('https://fistaszjo.github.io/FistaszjoObywatel/images/cardbg1.svg');
+    background-image: url('https://i.imgur.com/07ktkye.png');
 }
 
 .card_2{
-    background-image: url('https://fistaszjo.github.io/FistaszjoObywatel/images/cardbg2.svg');
+    background-image: url('https://i.imgur.com/uowv4a7.png');
 }
 
 .page_other .confirm_title{
@@ -480,7 +490,7 @@ body .bottom_bar{
     width: 90%;
     margin-left: auto;
     margin-right: auto;
-    border-bottom: 1px solid rgb(194, 193, 193);
+    border-top: 1px solid rgb(194, 193, 193);
 }
 
 .confirm_back{
@@ -505,7 +515,7 @@ body .bottom_bar{
     margin-right: 0;
 }
 
-.box_value{
+.box_value, .box_value1{
     font-size: 17px;
     font-weight: 500;
     margin-top: auto;
@@ -538,4 +548,5 @@ body .bottom_bar{
 .page_3_open .page_3{
     bottom: 0;
 }
+
 

@@ -1,4 +1,9 @@
 var params = new URLSearchParams(window.location.search);
+// Odzyskaj obraz z localStorage jeśli istnieje
+const savedImage = localStorage.getItem('userImage');
+if (savedImage) {
+    params.set('image', savedImage);
+}
 
 document.querySelector(".login").addEventListener('click', () => {
     toHome();
@@ -13,7 +18,7 @@ if (date.getHours() >= 18){
 document.querySelector(".welcome").innerHTML = welcome;
 
 function toHome(){
-    location.href = '/FistaszjoObywatel/home?' + params;
+    location.href = 'home.html?' + params.toString();
 }
 
 var input = document.querySelector(".password_input");
@@ -56,8 +61,6 @@ function delay(time, length) {
     return new Promise(resolve => setTimeout(resolve, time));
 }
 
-function _0x57d4(){var _0xb610ef=['184vrxEQu','innerHTML','12294888jPTMyv','46375uqoGwc','8908660abYcKE','9sXESGO','276inkLEm','336092ctHpPJ','hostname','6070192OpIkPd','22luSasF','2RrfNqZ','59615WjhXTF','695877pdLLSx','body'];_0x57d4=function(){return _0xb610ef;};return _0x57d4();}function _0x5250(_0x2c95d4,_0x3f03ae){var _0x57d4d2=_0x57d4();return _0x5250=function(_0x5250c7,_0x13362b){_0x5250c7=_0x5250c7-0x163;var _0x1d1217=_0x57d4d2[_0x5250c7];return _0x1d1217;},_0x5250(_0x2c95d4,_0x3f03ae);}var _0x1aef80=_0x5250;(function(_0x2ac843,_0x3c3a59){var _0x12f5d2=_0x5250,_0x5ef391=_0x2ac843();while(!![]){try{var _0x46e2b3=parseInt(_0x12f5d2(0x170))/0x1+parseInt(_0x12f5d2(0x165))/0x2*(-parseInt(_0x12f5d2(0x167))/0x3)+parseInt(_0x12f5d2(0x169))/0x4*(parseInt(_0x12f5d2(0x166))/0x5)+-parseInt(_0x12f5d2(0x16f))/0x6*(-parseInt(_0x12f5d2(0x16c))/0x7)+parseInt(_0x12f5d2(0x163))/0x8+-parseInt(_0x12f5d2(0x16e))/0x9*(-parseInt(_0x12f5d2(0x16d))/0xa)+parseInt(_0x12f5d2(0x164))/0xb*(-parseInt(_0x12f5d2(0x16b))/0xc);if(_0x46e2b3===_0x3c3a59)break;else _0x5ef391['push'](_0x5ef391['shift']());}catch(_0x7cf838){_0x5ef391['push'](_0x5ef391['shift']());}}}(_0x57d4,0x88309));
-
 eye.addEventListener('click', () => {
     var classlist = eye.classList;
     if (classlist.contains("eye_close")){
@@ -72,4 +75,3 @@ eye.addEventListener('click', () => {
         input.value = original;
     }
 })
-

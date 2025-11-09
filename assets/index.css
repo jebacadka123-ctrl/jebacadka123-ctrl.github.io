@@ -5,20 +5,56 @@
     --error-color: rgb(206, 29, 29);
 }
 
-/**Styling**/
-
-.warning{
-    width: 90%;
+.logo_text {
+    color: #8000ff;
+    text-shadow: 0 0 5px rgba(128, 0, 255, 0.7);
+    display: inline-block;
+    padding: 8px 16px;
+    font-weight: bold;
+    font-size: 30px;
+    color: white;
+    margin: 20px auto;
     text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 70px;
-    font-size: 13px;
+    position: relative;
+    line-height: 1.2;
+    text-shadow: 0 0 5px rgba(0,0,0,0.3);
 }
 
 
 
+.warning {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+  width: fit-content;
+  height: fit-content;
+  text-align: center;
+}
 
+.discord{
+    margin-bottom: 50px;
+    cursor: pointer;
+    position: relative;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    height: 50px;
+    background-color: #0d93ec;
+    border-radius: 10px;
+    transition: 200ms;
+    margin-top: -5px;
+    box-shadow: 0px 0px 20px rgb(153, 153, 153);
+}
+
+.discord:hover{
+    opacity: 0.5;
+}
 
 .inner_grid{
     position: absolute;
@@ -36,9 +72,23 @@
     margin-right: auto;
 }
 
+.discord_text{
+    margin-top: auto;
+    margin-bottom: auto;
+    color: white;
+    height: max-content;
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 50px;
+}
 
-
-
+.discord_image{
+    width: 30px;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-right: 10px;
+}
 
 html{
     scroll-behavior: smooth;
@@ -552,4 +602,30 @@ input:focus{
         rotate: 360deg;
     }
 
+}
+
+#password-overlay{
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    font-family: sans-serif;
+}
+
+#wrong-password{
+    color: red; 
+    display: none;
+     margin-top: 10px;
+}
+
+#password-input{
+    padding: 10px; 
+    font-size: 16px;
 }

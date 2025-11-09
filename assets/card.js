@@ -21,7 +21,8 @@ function clearClassList(){
 }
 
 var time = document.getElementById("time");
-var options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+var options = { year: 'numeric', month: 'numeric', day: '2-digit' };
+var optionsTime = { second: 'numeric', minute: 'numeric', hour: '2-digit' };
 
 if (localStorage.getItem("update") == null){
   localStorage.setItem("update", "24.12.2024")
@@ -47,8 +48,8 @@ function delay(time) {
 
 setClock();
 function setClock(){
-    date = new Date()
-    time.innerHTML = "Czas: " + date.toLocaleTimeString() + " " + date.toLocaleDateString("pl-PL", options);    
+    date = new Date();
+    time.innerHTML = "Czas: " + date.toLocaleTimeString("pl-PL", optionsTime) + " " + date.toLocaleDateString("pl-PL", options);    
     delay(1000).then(() => {
         setClock();
     })
@@ -72,7 +73,7 @@ for (var key of params.keys()){
   data[key] = params.get(key);
 }
 
-document.querySelector(".id_own_image").style.backgroundImage = `https://i1.sndcdn.com/artworks-2PLdSMq3UDyLNS8d-NxSdfA-t1080x1080.jpg`;
+document.querySelector(".id_own_image").style.backgroundImage = `url(${data['image']})`;
 
 var birthday = data['birthday'];
 var birthdaySplit = birthday.split(".");
@@ -95,6 +96,8 @@ if (sex === "m"){
   sex = "Kobieta"
 }
 
+
+
 setData("name", data['name'].toUpperCase());
 setData("surname", data['surname'].toUpperCase());
 setData("nationality", data['nationality'].toUpperCase());
@@ -106,6 +109,11 @@ setData("mothersFamilyName", data['mothersFamilyName']);
 setData("birthPlace", data['birthPlace']);
 setData("countryOfBirth", data['countryOfBirth']);
 setData("adress", "ul. " + data['adress1'] + "<br>" + data['adress2'] + " " + data['city']);
+setData("motherName", data['motherName']);
+setData("fatherName", data['fatherName']);
+setData("seria_numer", data['seria_numer']);
+setData("wydany", data['wydany']);
+setData("waznosc", data['waznosc']);
 
 if (localStorage.getItem("homeDate") == null){
   var homeDay = getRandom(1, 25);
@@ -145,13 +153,16 @@ if (month < 10){
 var pesel = year.toString().substring(2) + month + day + later + "7";
 setData("pesel", pesel)
 
-function setData(id, value){
-
-  document.getElementById(id).innerHTML = value;
-
+function setData(id, value) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.innerHTML = value;
+  } else {
+    console.warn(`Nie znaleziono elementu o id: ${id}`);
+  }
 }
+
 
 function getRandom(min, max) {
   return parseInt(Math.random() * (max - min) + min);
 }
-
