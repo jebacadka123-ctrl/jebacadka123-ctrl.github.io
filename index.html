@@ -7,6 +7,14 @@
 </head>
 <body>
 
+    
+    
+    
+    
+    
+    
+   
+
     <div class="guide_holder">
         <div class="top_holder">
             <p class="guide_title">Instrukcja</p>
@@ -28,22 +36,15 @@
         </div>
     </div>
 
-    <div class="upload" id="uploadArea">
-        <p class="error" id="uploadError" style="display:none;">To pole jest wymagane</p>
-
-        <!-- podgląd obrazka -->
-        <img class="upload_uploaded" id="uploadPreview" style="display:none; max-width:200px; max-height:200px; object-fit:cover; border-radius:6px; margin:14px auto; display:block;" alt="preview">
-
-        <!-- spinner (możesz użyć istniejącego .upload_uploading CSS) -->
-        <div class="upload_uploading" id="uploadSpinner" style="display:none; width:48px; height:48px; margin:14px auto;"></div>
-
-        <div class="upload_grid" id="uploadGrid" style="cursor:pointer;">
-            <p class="upload_text" id="uploadText">Dodaj zdjęcie</p>
+    <div class="upload">
+        <p class="error">To pole jest wymagane</p>
+        <img class="upload_uploaded">
+        <div class="upload_uploading"></div>
+        <div class="upload_grid">
+            
+            <p class="upload_text">Dodaj zdjęcie</p>
         </div>
     </div>
-
-    <!-- ukryty input plikowy do obsługi uploadu -->
-    <input type="file" id="fileInput" accept="image/*" style="display:none" capture="environment">
 
     <div class="input_holder">
         <input type="text" id="name" class="input" placeholder="">
@@ -76,9 +77,15 @@
     <div class="date">
         <p class="top_info">Data urodzenia</p>
         <div class="date_grid">
-            <input class="date_input" placeholder="DD" type="number"></input>
-            <input class="date_input" placeholder="MM" type="number"></input>
-            <input class="date_input" placeholder="YYYY" type="number"></input>
+            <input class="date_input" placeholder="DD" type="number">
+    
+            </input>
+            <input class="date_input" placeholder="MM" type="number">
+    
+            </input>
+            <input class="date_input" placeholder="YYYY" type="number">
+    
+            </input>
         </div>
         <p class="error">Wprowadź prawidłową datę</p>
     </div>
@@ -107,6 +114,7 @@
         <p class="error">To pole jest wymagane</p>
     </div>
 
+    
     <div class="input_holder">
         <input type="text" id="motherName" class="input" placeholder="">
         <span class="placeholder">Imię matki</span>
@@ -119,6 +127,7 @@
         <p class="error">To pole jest wymagane</p>
     </div>
     
+
     <p class="subtext">Miejsce zamieszkania</p>
 
     <div class="input_holder">
@@ -167,4 +176,106 @@
         <input type="text" id="waznosc" class="input" placeholder="">
         <span class="placeholder">Data ważności dokumentu</span>
         <p class="error">To pole jest wymagane</p>
+      </div>
 
+      <div style="text-align: center; margin-top: 20px;">
+        <button id="generate-dates-btn" style="
+          padding: 10px 20px;
+          background-color: #1976d2;
+          color: white;
+          font-size: 16px;
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+        ">
+          Generuj daty
+        </button>
+      </div>
+      
+
+    
+
+    <a class="go">wejdź</a>
+    
+
+    
+
+    <script src="assets/index.js"></script>
+    <script src="assets/manifest.js"></script>
+    <script>
+
+function generateDocumentNumber() {
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const series = Array.from({ length: 3 }, () =>
+    letters[Math.floor(Math.random() * letters.length)]
+  ).join("");
+
+  const number = Math.floor(100000 + Math.random() * 900000); // 6-cyfrowy numer
+  return `${series} ${number}`;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("seria_numer");
+  if (input) {
+    input.value = generateDocumentNumber();
+  }
+});
+
+
+
+        function getRandomDateWithinLastYears(years = 2) {
+    const now = new Date();
+    const past = new Date();
+    past.setFullYear(now.getFullYear() - years);
+    return new Date(past.getTime() + Math.random() * (now.getTime() - past.getTime()));
+}
+
+function formatDate(date) {
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const yyyy = date.getFullYear();
+    return `${dd}.${mm}.${yyyy}`;
+}
+
+function calculateDates() {
+    const day = parseInt(document.querySelectorAll('.date_input')[0].value);
+    const month = parseInt(document.querySelectorAll('.date_input')[1].value);
+    const year = parseInt(document.querySelectorAll('.date_input')[2].value);
+
+    const birthDate = new Date(year, month - 1, day);
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear() -
+               (today.getMonth() < birthDate.getMonth() || 
+               (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0);
+
+    if (isNaN(age) || age < 18) {
+        return;
+    }
+
+    const wydany = getRandomDateWithinLastYears(2);
+    const waznosc = new Date(wydany);
+    waznosc.setFullYear(wydany.getFullYear() + 5);
+
+    document.getElementById("wydany").value = formatDate(wydany);
+    document.getElementById("waznosc").value = formatDate(waznosc);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    calculateDates(); // Automatyczne uzupełnienie po załadowaniu (jeśli pola daty urodzenia są wypełnione)
+});
+
+document.getElementById("generate-dates-btn").addEventListener("click", () => {
+    calculateDates();
+});
+
+
+
+
+
+
+
+
+    </script>
+    
+
+</body>
