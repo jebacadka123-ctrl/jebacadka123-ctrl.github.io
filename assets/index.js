@@ -38,28 +38,31 @@ document.querySelectorAll(".input_holder").forEach((element) => {
 
 });
 
+upload.addEventListener('click', () => {
+    imageInput.click();
+    upload.classList.remove("error_shown")
+});
+
 imageInput.addEventListener('change', (event) => {
+
     upload.classList.remove("upload_loaded");
     upload.classList.add("upload_loading");
-    upload.removeAttribute("selected");
+
+    upload.removeAttribute("selected")
 
     var file = imageInput.files[0];
-    var reader = new FileReader();
+    var data = new FormData();
+    data.append("image", file);
 
-    reader.onload = function() {
-        var base64Image = reader.result.split(',')[1];
-
-        var data = new FormData();
-        data.append("key", "e3547c9b30bf886a2ade61c7388b1d0d9"); // IMGBB API key
-        data.append("image", base64Image);
-
-        fetch('https://api.imgbb.com/1/upload', {
-            method: 'POST',
-            body: data
-        })
-        .then(result => result.json())
-        .then(response => {
-            if(response.success) {
+    fetch('	https://api.imgur.com/3/image' ,{
+        method: 'POST',
+        headers: {
+            'Authorization': 'Client-ID c8c28d402435402'
+        },
+        body: data
+    })
+    .then(result => result.json())
+    .then(response => {
         
         var url = response.data.link;
         upload.classList.remove("error_shown")
