@@ -1,3 +1,6 @@
+// Zmienione: upload na Imgbb zamiast Imgur.
+// Wklej swój klucz IMGBB w zmiennej IMGBB_KEY poniżej:
+const IMGBB_KEY = 'TU_WKLEJ_SWÓJ_IMGBB_KEY';
 
 var selector = document.querySelector(".selector_box");
 selector.addEventListener('click', () => {
@@ -25,9 +28,11 @@ document.querySelectorAll(".selector_option").forEach((option) => {
 
 var upload = document.querySelector(".upload");
 
+// stworz input plikowy (by działało tak samo jak wcześniej)
 var imageInput = document.createElement("input");
 imageInput.type = "file";
-imageInput.accept = ".jpeg,.png,.gif";
+// lepiej przyjmować wszystkie obrazy
+imageInput.accept = "image/*";
 
 document.querySelectorAll(".input_holder").forEach((element) => {
 
@@ -45,35 +50,85 @@ upload.addEventListener('click', () => {
 
 imageInput.addEventListener('change', (event) => {
 
+    // UI: pokaż loading
     upload.classList.remove("upload_loaded");
     upload.classList.add("upload_loading");
 
     upload.removeAttribute("selected")
 
     var file = imageInput.files[0];
-    var data = new FormData();
-    data.append("image", file);
+    if (!file) {
+      // brak pliku
+      upload.classList.remove("upload_loading");
+      showUploadError('Brak wybranego pliku');
+      return;
+    }
 
-    fetch('	https://api.imgur.com/3/image' ,{
+    // --- nowa implementacja: najpierw konwertujemy plik do base64 ---
+    const reader = new FileReader();
+    reader.onerror = function() {
+      upload.classList.remove("upload_loading");
+      showUploadError('Błąd podczas odczytu pliku');
+    };
+    reader.onload = function(e) {
+      const dataUrl = e.target.result; // "data:image/..;base64,AAAA..."
+      const base64 = dataUrl.split(',')[1];
+
+      // przygotuj FormData zgodnie z API imgbb
+      const form = new FormData();
+      form.append('image', base64);
+
+      // fetch do imgbb (klucz w IMGBB_KEY)
+      fetch('https://api.imgbb.com/1/upload?key=' + encodeURIComponent(IMGBB_KEY), {
         method: 'POST',
-        headers: {
-            'Authorization': 'Client-ID c8c28d402435402'
-        },
-        body: data
-    })
-    .then(result => result.json())
-    .then(response => {
-        
-        var url = response.data.link;
+        body: form
+      })
+      .then(res => res.json())
+      .then(response => {
+        // sprawdź odpowiedź
+        if (!response) throw new Error('Brak odpowiedzi od imgbb');
+        if (response.success !== true && response.status !== 200) {
+          // możliwe błędy w response.data
+          const msg = response.data && response.data.error ? JSON.stringify(response.data.error) : JSON.stringify(response);
+          throw new Error('Upload nieudany: ' + msg);
+        }
+
+        // imgbb zwraca link w data.display_url / data.url
+        var url = (response.data && (response.data.display_url || response.data.url)) || null;
+        if (!url) throw new Error('Brak linku w odpowiedzi imgbb');
+
+        // ustawienie UI tak jak wcześniej
         upload.classList.remove("error_shown")
         upload.setAttribute("selected", url);
         upload.classList.add("upload_loaded");
         upload.classList.remove("upload_loading");
-        upload.querySelector(".upload_uploaded").src = url;
 
-    })
+        // ustaw podgląd (jeśli w HTML jest tag img.upload_uploaded)
+        var preview = upload.querySelector(".upload_uploaded");
+        if (preview) preview.src = url;
 
-})
+      })
+      .catch(err => {
+        console.error('IMG upload error:', err);
+        upload.classList.remove("upload_loading");
+        showUploadError('Błąd podczas przesyłania obrazu: ' + (err && err.message ? err.message : err));
+      });
+    };
+
+    reader.readAsDataURL(file);
+
+});
+
+// helper do wyświetlania błędu uploadu
+function showUploadError(msg){
+  const errEl = upload.querySelector(".error");
+  if(errEl){
+    errEl.textContent = msg;
+    errEl.style.display = 'block';
+  } else {
+    alert(msg);
+  }
+}
 
 document.querySelector(".go").addEventListener('click', () => {
 
@@ -160,5 +215,3 @@ document.querySelectorAll(".input").forEach((input) => {
         localStorage.setItem(input.id, input.value);
     });
 });
-
-
