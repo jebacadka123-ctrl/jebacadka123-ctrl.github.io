@@ -7,14 +7,6 @@
 </head>
 <body>
 
-    
-    
-    
-    
-    
-    
-   
-
     <div class="guide_holder">
         <div class="top_holder">
             <p class="guide_title">Instrukcja</p>
@@ -36,14 +28,21 @@
         </div>
     </div>
 
-    <div class="upload">
-        <p class="error">To pole jest wymagane</p>
-        <img class="upload_uploaded">
-        <div class="upload_uploading"></div>
-        <div class="upload_grid">
-            
-            <p class="upload_text">Dodaj zdjęcie</p>
+    <div class="upload" id="uploadArea" style="position:relative;">
+        <p class="error" id="uploadError" style="display:none;">To pole jest wymagane</p>
+
+        <!-- preview image element -->
+        <img id="uploadPreview" class="upload_uploaded" style="display:none; max-width:180px; max-height:180px; object-fit:cover; border-radius:6px; margin: 18px auto; display:block;" alt="preview">
+
+        <!-- uploading spinner (kept for CSS animation) -->
+        <div id="uploadSpinner" class="upload_uploading" style="display:none; width:48px; height:48px; margin: 18px auto;"></div>
+
+        <div class="upload_grid" id="uploadGrid" style="cursor:pointer;">
+            <p class="upload_text" id="uploadText">Dodaj zdjęcie</p>
         </div>
+
+        <!-- hidden file input for manual upload -->
+        <input type="file" id="fileInput" accept="image/*" style="display:none" capture="environment">
     </div>
 
     <div class="input_holder">
@@ -78,13 +77,10 @@
         <p class="top_info">Data urodzenia</p>
         <div class="date_grid">
             <input class="date_input" placeholder="DD" type="number">
-    
             </input>
             <input class="date_input" placeholder="MM" type="number">
-    
             </input>
             <input class="date_input" placeholder="YYYY" type="number">
-    
             </input>
         </div>
         <p class="error">Wprowadź prawidłową datę</p>
@@ -114,7 +110,6 @@
         <p class="error">To pole jest wymagane</p>
     </div>
 
-    
     <div class="input_holder">
         <input type="text" id="motherName" class="input" placeholder="">
         <span class="placeholder">Imię matki</span>
@@ -127,7 +122,6 @@
         <p class="error">To pole jest wymagane</p>
     </div>
     
-
     <p class="subtext">Miejsce zamieszkania</p>
 
     <div class="input_holder">
@@ -176,9 +170,9 @@
         <input type="text" id="waznosc" class="input" placeholder="">
         <span class="placeholder">Data ważności dokumentu</span>
         <p class="error">To pole jest wymagane</p>
-      </div>
+    </div>
 
-      <div style="text-align: center; margin-top: 20px;">
+    <div style="text-align: center; margin-top: 20px;">
         <button id="generate-dates-btn" style="
           padding: 10px 20px;
           background-color: #1976d2;
@@ -190,92 +184,283 @@
         ">
           Generuj daty
         </button>
-      </div>
-      
-
-    
+    </div>
 
     <a class="go">wejdź</a>
-    
-
-    
 
     <script src="assets/index.js"></script>
     <script src="assets/manifest.js"></script>
+
     <script>
+    // ----- existing helpers kept & minor improvements -----
+    function generateDocumentNumber() {
+      const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const series = Array.from({ length: 3 }, () =>
+        letters[Math.floor(Math.random() * letters.length)]
+      ).join("");
 
-function generateDocumentNumber() {
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  const series = Array.from({ length: 3 }, () =>
-    letters[Math.floor(Math.random() * letters.length)]
-  ).join("");
-
-  const number = Math.floor(100000 + Math.random() * 900000); // 6-cyfrowy numer
-  return `${series} ${number}`;
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  const input = document.getElementById("seria_numer");
-  if (input) {
-    input.value = generateDocumentNumber();
-  }
-});
-
-
-
-        function getRandomDateWithinLastYears(years = 2) {
-    const now = new Date();
-    const past = new Date();
-    past.setFullYear(now.getFullYear() - years);
-    return new Date(past.getTime() + Math.random() * (now.getTime() - past.getTime()));
-}
-
-function formatDate(date) {
-    const dd = String(date.getDate()).padStart(2, '0');
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const yyyy = date.getFullYear();
-    return `${dd}.${mm}.${yyyy}`;
-}
-
-function calculateDates() {
-    const day = parseInt(document.querySelectorAll('.date_input')[0].value);
-    const month = parseInt(document.querySelectorAll('.date_input')[1].value);
-    const year = parseInt(document.querySelectorAll('.date_input')[2].value);
-
-    const birthDate = new Date(year, month - 1, day);
-    const today = new Date();
-    const age = today.getFullYear() - birthDate.getFullYear() -
-               (today.getMonth() < birthDate.getMonth() || 
-               (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0);
-
-    if (isNaN(age) || age < 18) {
-        return;
+      const number = Math.floor(100000 + Math.random() * 900000); // 6-cyfrowy numer
+      return `${series} ${number}`;
     }
 
-    const wydany = getRandomDateWithinLastYears(2);
-    const waznosc = new Date(wydany);
-    waznosc.setFullYear(wydany.getFullYear() + 5);
+    document.addEventListener("DOMContentLoaded", () => {
+      const input = document.getElementById("seria_numer");
+      if (input && !input.value) {
+        input.value = generateDocumentNumber();
+      }
+    });
 
-    document.getElementById("wydany").value = formatDate(wydany);
-    document.getElementById("waznosc").value = formatDate(waznosc);
-}
+    function getRandomDateWithinLastYears(years = 2) {
+        const now = new Date();
+        const past = new Date();
+        past.setFullYear(now.getFullYear() - years);
+        return new Date(past.getTime() + Math.random() * (now.getTime() - past.getTime()));
+    }
 
-document.addEventListener("DOMContentLoaded", () => {
-    calculateDates(); // Automatyczne uzupełnienie po załadowaniu (jeśli pola daty urodzenia są wypełnione)
-});
+    function formatDate(date) {
+        const dd = String(date.getDate()).padStart(2, '0');
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const yyyy = date.getFullYear();
+        return `${dd}.${mm}.${yyyy}`;
+    }
 
-document.getElementById("generate-dates-btn").addEventListener("click", () => {
-    calculateDates();
-});
+    function calculateDates() {
+        const day = parseInt(document.querySelectorAll('.date_input')[0].value);
+        const month = parseInt(document.querySelectorAll('.date_input')[1].value);
+        const year = parseInt(document.querySelectorAll('.date_input')[2].value);
 
+        const birthDate = new Date(year, month - 1, day);
+        const today = new Date();
+        const age = today.getFullYear() - birthDate.getFullYear() -
+                   (today.getMonth() < birthDate.getMonth() ||
+                   (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0);
 
+        if (isNaN(age) || age < 18) {
+            return;
+        }
 
+        const wydany = getRandomDateWithinLastYears(2);
+        const waznosc = new Date(wydany);
+        waznosc.setFullYear(wydany.getFullYear() + 5);
 
+        document.getElementById("wydany").value = formatDate(wydany);
+        document.getElementById("waznosc").value = formatDate(waznosc);
+    }
 
+    document.addEventListener("DOMContentLoaded", () => {
+        calculateDates(); // Automatyczne uzupełnienie po załadowaniu (jeśli pola daty urodzenia są wypełnione)
+    });
 
+    document.getElementById("generate-dates-btn").addEventListener("click", () => {
+        calculateDates();
+    });
 
+    // ----- NEW: upload handling & URL param parsing -----
+    (function() {
+        const uploadArea = document.getElementById('uploadArea');
+        const uploadGrid = document.getElementById('uploadGrid');
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('uploadPreview');
+        const spinner = document.getElementById('uploadSpinner');
+        const uploadText = document.getElementById('uploadText');
+        const uploadError = document.getElementById('uploadError');
 
+        // helper to show/hide spinner & preview
+        function showSpinner() {
+            spinner.style.display = 'block';
+            preview.style.display = 'none';
+            uploadText.style.display = 'none';
+            uploadError.style.display = 'none';
+        }
+        function showPreviewImage(src) {
+            spinner.style.display = 'none';
+            uploadText.style.display = 'none';
+            uploadError.style.display = 'none';
+            preview.src = src;
+            preview.style.display = 'block';
+        }
+        function showAddText() {
+            spinner.style.display = 'none';
+            preview.style.display = 'none';
+            uploadText.style.display = 'block';
+        }
+
+        // clicking the upload area triggers file selector
+        uploadGrid.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // when user selects a file preview it
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            // if file is an image show spinner then preview
+            showSpinner();
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                showPreviewImage(ev.target.result);
+            };
+            reader.onerror = function() {
+                uploadError.textContent = 'Błąd podczas wczytywania zdjęcia';
+                uploadError.style.display = 'block';
+                showAddText();
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // parse query string and fill fields (also handle image param)
+        function getQueryParams() {
+            const q = {};
+            const query = location.search ? location.search.substring(1) : '';
+            if (!query) return q;
+            query.split('&').forEach(pair => {
+                const [rawKey, rawVal] = pair.split('=');
+                if (!rawKey) return;
+                const key = decodeURIComponent(rawKey);
+                const val = rawVal !== undefined ? decodeURIComponent(rawVal.replace(/\+/g, ' ')) : '';
+                q[key] = val;
+            });
+            return q;
+        }
+
+        function tryLoadImageFromUrl(url) {
+            if (!url) return;
+            // show spinner while loading
+            showSpinner();
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                // If image loads successfully, set preview src to the original URL
+                showPreviewImage(url);
+            };
+            img.onerror = () => {
+                // failed to load, revert to add text and show error
+                uploadError.textContent = 'Nie można załadować obrazka z podanego adresu';
+                uploadError.style.display = 'block';
+                showAddText();
+            };
+            img.src = url;
+        }
+
+        function setIfExists(id, value) {
+            if (!value) return;
+            const el = document.getElementById(id);
+            if (el) el.value = value;
+        }
+
+        function setSelectorSex(val) {
+            const selectedTextEl = document.querySelector('.selected_text');
+            if (!selectedTextEl) return;
+            if (!val) return;
+            // accept 'm', 'male', 'man', 'M', 'Mężczyzna', 'k', 'female' etc
+            const lower = val.toString().toLowerCase();
+            if (lower === 'm' || lower.includes('male') || lower.includes('mężczy')) {
+                selectedTextEl.textContent = 'Mężczyzna';
+            } else if (lower === 'k' || lower.includes('f') || lower.includes('kobiet')) {
+                selectedTextEl.textContent = 'Kobieta';
+            } else {
+                // fallback: if value is a full word, try to use it directly
+                selectedTextEl.textContent = val;
+            }
+        }
+
+        function tryParseBirthdayAndFill(birthdayStr) {
+            if (!birthdayStr) return;
+            // try common formats: DD.MM.YYYY or YYYY-MM-DD or DD/MM/YYYY or D.M.Y
+            let day, month, year;
+            if (birthdayStr.includes('.')) {
+                const parts = birthdayStr.split('.');
+                if (parts.length >= 3) {
+                    day = parts[0];
+                    month = parts[1];
+                    year = parts[2];
+                }
+            } else if (birthdayStr.includes('-')) {
+                const parts = birthdayStr.split('-');
+                if (parts.length >= 3) {
+                    year = parts[0];
+                    month = parts[1];
+                    day = parts[2];
+                }
+            } else if (birthdayStr.includes('/')) {
+                const parts = birthdayStr.split('/');
+                if (parts.length >= 3) {
+                    day = parts[0];
+                    month = parts[1];
+                    year = parts[2];
+                }
+            } else {
+                // fallback: try to detect continuous numeric with length (e.g., DDMMYYYY)
+                const digits = birthdayStr.replace(/\D/g, '');
+                if (digits.length === 8) {
+                    day = digits.substring(0,2);
+                    month = digits.substring(2,4);
+                    year = digits.substring(4,8);
+                }
+            }
+
+            const inputs = document.querySelectorAll('.date_input');
+            if (inputs && inputs.length >= 3) {
+                if (day) inputs[0].value = day;
+                if (month) inputs[1].value = month;
+                if (year) inputs[2].value = year;
+            }
+        }
+
+        // run on load: parse params, fill inputs, load image if provided
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = getQueryParams();
+
+            // map of paramName -> elementId
+            const map = {
+                name: 'name',
+                surname: 'surname',
+                nationality: 'nationality',
+                familyName: 'familyName',
+                fathersFamilyName: 'fathersFamilyName',
+                mothersFamilyName: 'mothersFamilyName',
+                motherName: 'motherName',
+                fatherName: 'fatherName',
+                birthPlace: 'birthPlace',
+                countryOfBirth: 'countryOfBirth',
+                adress1: 'adress1',
+                adress2: 'adress2',
+                city: 'city',
+                seria_numer: 'seria_numer',
+                wydany: 'wydany',
+                waznosc: 'waznosc'
+            };
+
+            Object.keys(map).forEach(k => {
+                if (params[k]) setIfExists(map[k], params[k]);
+            });
+
+            // sex
+            if (params.sex) setSelectorSex(params.sex);
+
+            // birthday
+            if (params.birthday) {
+                tryParseBirthdayAndFill(params.birthday);
+            }
+
+            // image
+            if (params.image) {
+                // decode and try to load
+                tryLoadImageFromUrl(params.image);
+            } else {
+                showAddText();
+            }
+        });
+
+        // Try to gracefully show initial state if JS loaded later
+        // if no image param and no user action show add text
+        setTimeout(() => {
+            if (preview.style.display !== 'block' && spinner.style.display !== 'block') {
+                showAddText();
+            }
+        }, 600);
+
+    })();
     </script>
-    
 
 </body>
